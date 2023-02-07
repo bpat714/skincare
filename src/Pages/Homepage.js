@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
 const { Configuration, OpenAIApi } = require("openai");
 
+const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
+if (apiKey == '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'){
+    console.log("its the same damn thing!");
+} else {
+    console.log("its different " + apiKey);
+}
+
 const configuration = new Configuration({
-    apiKey: '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',
+    apiKey: process.env.REACT_APP_OPENAI_API_KEY,
   });
 
   const openai = new OpenAIApi(configuration);
