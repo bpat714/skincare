@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
 const { Configuration, OpenAIApi } = require("openai");
 
-const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
-if (apiKey == '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'){
-    console.log("its the same damn thing!");
-} else {
-    console.log("its different " + apiKey);
-}
-
 const configuration = new Configuration({
     apiKey: process.env.REACT_APP_OPENAI_API_KEY,
   });
@@ -19,7 +12,7 @@ const useGetRecommendations = (skinType, skinConcern) => {
 
   useEffect(() => {
     const getRecommendations = async () => {
-      const prompt = `Skincare recommendation for a person with ${skinType} skin and ${skinConcern} concern`;
+      const prompt = `Skincare routine steps for a person with ${skinType} skin and ${skinConcern} concern`;
       const response = await openai.createCompletion({
         model: "text-davinci-003",
         prompt: prompt,
@@ -29,16 +22,15 @@ const useGetRecommendations = (skinType, skinConcern) => {
         frequency_penalty: 0,
         presence_penalty: 0,
       });
-      
-      setRecommendations(response.data.choices[0].text)
-      //setRecommendations(response.choices[0].text);
+
+      setRecommendations(response.data.choices[0].text);
+
     };
 
     if (skinType && skinConcern) {
       getRecommendations();
     }
   }, [skinType, skinConcern]);
-  console.log(recommendations)
   return recommendations;
 };
 
@@ -95,7 +87,9 @@ const HomePage = () => {
       {recommendations && (
         <div>
           <h2>Your Recommendations:</h2>
-          <p>{recommendations}</p>
+          {recommendations.split("\n").map((item, index) => (
+            <p key={index}>{item}</p>
+          ))}
         </div>
       )}
     </div>
