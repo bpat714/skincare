@@ -1,43 +1,10 @@
-import React, { useState, useEffect } from 'react';
-const { Configuration, OpenAIApi } = require("openai");
+import React, { useState } from 'react';
 
-const configuration = new Configuration({
-    apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-  });
-
-  const openai = new OpenAIApi(configuration);
-
-const useGetRecommendations = (skinType, skinConcern) => {
-  const [recommendations, setRecommendations] = useState(null);
-
-  useEffect(() => {
-    const getRecommendations = async () => {
-      const prompt = `Skincare routine steps for a person with ${skinType} skin and ${skinConcern} concern`;
-      const response = await openai.createCompletion({
-        model: "text-davinci-003",
-        prompt: prompt,
-        temperature: 0.7,
-        max_tokens: 256,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-      });
-
-      setRecommendations(response.data.choices[0].text);
-
-    };
-
-    if (skinType && skinConcern) {
-      getRecommendations();
-    }
-  }, [skinType, skinConcern]);
-  return recommendations;
-};
-
-const HomePage = () => {
+const Homepage = () => {
   const [skinType, setSkinType] = useState('');
   const [skinConcern, setSkinConcern] = useState('');
-  const recommendations = useGetRecommendations(skinType, skinConcern);
+  const [recommendations, setRecommendations] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSkinTypeChange = event => {
     setSkinType(event.target.value);
@@ -47,8 +14,28 @@ const HomePage = () => {
     setSkinConcern(event.target.value);
   };
 
-  const handleSubmit = event => {
+  const handleSubmit = async event => {
     event.preventDefault();
+
+    if (!skinType || !skinConcern) {
+      return;
+    }
+
+    setLoading(true);
+
+    const response = await fetch('https://dlm7wyprb5.execute-api.ap-northeast-1.amazonaws.com/default/skincare-steps', {
+      method: 'POST',
+      headers: {
+        'x-api-key': 'bapvBmDT3t477Zf4iOGrE8fc2jkWZ67G4kbY2ps0',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ skinType, skinConcern })
+    });
+
+    const result = await response.json();
+
+    setRecommendations(result.body);
+    setLoading(false);
   };
 
   return (
@@ -84,16 +71,23 @@ const HomePage = () => {
         <br />
         <button type="submit">Get Recommendations</button>
       </form>
-      {recommendations && (
-        <div>
-          <h2>Your Recommendations:</h2>
-          {recommendations.split("\n").map((item, index) => (
-            <p key={index}>{item}</p>
-          ))}
-        </div>
-      )}
+      {loading ? 
+        <p>Loading...</p> : 
+        recommendations && (
+          <div>
+            <h2>Your Recommendations:</h2>
+            <div>
+              {recommendations.split("\n").map((item, index) => (
+                <a key={index} href={"/skincare-step-products?step="+item} style={{ display: 'block' }}>
+                  <p>{item}</p>
+                </a>
+              ))}
+            </div>
+          </div>
+        )
+      }
     </div>
   );
 };
 
-export default HomePage;
+export default Homepage;
