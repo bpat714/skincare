@@ -19,7 +19,7 @@ const SkincareStepProducts = () => {
 
     useEffect(() => {
         const getProductRecommendations = async () => {
-            const prompt = `recommend products for ` + step;
+            const prompt = `list of recommended products for ` + step;
             const response = await openai.createCompletion({
                 model: "text-davinci-003",
                 prompt: prompt,

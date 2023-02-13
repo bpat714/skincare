@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Homepage = () => {
   const [skinType, setSkinType] = useState('');
@@ -6,12 +6,26 @@ const Homepage = () => {
   const [recommendations, setRecommendations] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (sessionStorage.getItem("skinType")) {
+      setSkinType(sessionStorage.getItem("skinType"));
+    }
+    if (sessionStorage.getItem("skinConcern")) {
+      setSkinConcern(sessionStorage.getItem("skinConcern"));
+    }
+    if (sessionStorage.getItem("recommendations")) {
+      setRecommendations(sessionStorage.getItem("recommendations"));
+    }
+  }, []);
+
   const handleSkinTypeChange = event => {
     setSkinType(event.target.value);
+    sessionStorage.setItem("skinType", event.target.value);
   };
 
   const handleSkinConcernChange = event => {
     setSkinConcern(event.target.value);
+    sessionStorage.setItem("skinConcern", event.target.value);
   };
 
   const handleSubmit = async event => {
@@ -36,6 +50,7 @@ const Homepage = () => {
 
     setRecommendations(result.body);
     setLoading(false);
+    sessionStorage.setItem("recommendations", result.body);
   };
 
   return (
