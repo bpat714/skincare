@@ -49,6 +49,7 @@ const Homepage = () => {
     const result = await response.json();
 
     setRecommendations(result.body);
+    console.log(result.body)
     setLoading(false);
     sessionStorage.setItem("recommendations", result.body);
   };

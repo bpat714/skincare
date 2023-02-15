@@ -1,11 +1,4 @@
 import React, { useState, useEffect } from 'react';
-const { Configuration, OpenAIApi } = require("openai");
-
-const configuration = new Configuration({
-    apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-});
-
-const openai = new OpenAIApi(configuration);
 
 const SkincareStepProducts = () => {
     const [productRecommendations, setProductRecommendations] = useState(null);
@@ -19,17 +12,19 @@ const SkincareStepProducts = () => {
 
     useEffect(() => {
         const getProductRecommendations = async () => {
-            const prompt = `list of recommended products for ` + step;
-            const response = await openai.createCompletion({
-                model: "text-davinci-003",
-                prompt: prompt,
-                temperature: 0.7,
-                max_tokens: 256,
-                top_p: 1,
-                frequency_penalty: 0,
-                presence_penalty: 0,
+
+            const response = await fetch('https://743sdc4h41.execute-api.ap-northeast-1.amazonaws.com/default/skincare-products', {
+            method: 'POST',
+            headers: {
+                'x-api-key': 'FQLp2gp27V879sAolJ6fJBcfE6uWtyO4jy2noAc8',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ step })
             });
-            setProductRecommendations(response.data.choices[0].text);
+
+            const result = await response.json();
+            setProductRecommendations(result.body);
+            console.log(result.body);
         };
         if (step) {
             getProductRecommendations();
